@@ -11,8 +11,8 @@ body {
 }
 
 main {
-  background-color: #F5F5F5;
-  height: 400px;
+  background-color: hsl(0, 0%, 96%);
+  height: 620px;
   max-width: 800px;
   border-radius: 5px;
   padding: 20px;
@@ -89,4 +89,14 @@ gap: 20px;
 
 .roll-dice:active {
   box-shadow: inset 5px 5px 10px -3px rgba(0, 0, 0, 0.7);
+}
+
+#points {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.points-para {
+  margin-bottom: 5px;
 }

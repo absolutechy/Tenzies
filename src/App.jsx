@@ -19,7 +19,7 @@ function App() {
     if(allHeld && allDiceSame) { 
       setTenzies(true)
       if (startTime) {
-        setStopwatch(Date.now() - startTime); // Calculate elapsed time when game is won
+        setStopwatch(Date.now() - startTime); 
       }
     }
   }, [dice, startTime])
@@ -28,31 +28,15 @@ function App() {
     let intervalId;
     if (startTime && !tenzies) {
       intervalId = setInterval(() => {
-        setElapsedTime(Date.now() - startTime); // Update elapsedTime continuously
-      }, 1000); // Update every second
+        setElapsedTime(Date.now() - startTime); 
+      }, 1000); 
     } else {
-      clearInterval(intervalId); // Clear interval if game is won or restarted
-      setElapsedTime(0); // Reset elapsed time
-      setStartTime(null); // Reset start time
+      clearInterval(intervalId); 
+      setElapsedTime(0); 
+      setStartTime(null); 
     }
     return () => clearInterval(intervalId)
   }, [startTime, tenzies])
-
-
-  // Working Code Display time after wining the game
-  // useEffect(() => {
-  //   if (rollCount === 1) {
-  //     setStartTime(Date.now()); // Capture the start time
-  //   }
-  // }, [rollCount]);
-
-  // useEffect(() => {
-  //   if (tenzies && startTime !== null) {
-  //     const endTime = Date.now();
-  //     const timeElapsed = endTime - startTime;
-  //     setElapsedTime(timeElapsed); // Update elapsed time
-  //   }
-  // }, [tenzies, startTime]);
 
   const diceElements = dice.map(die => <Die key={die.id} value={die.value} isHeld={die.isHeld} holdDice={() => holdDice(die.id)}/>)
 
@@ -88,13 +72,17 @@ function App() {
               generateNewDie()
       }))
       if (!startTime) {
-        setStartTime(Date.now()); // Start the stopwatch when the game begins
+        setStartTime(Date.now()); 
       }
     } else {
       setTenzies(false)
       setDice(allNewDice())
+
+      const leastRolls = localStorage.getItem("leastRolls")
+      if(leastRolls === null || rollCount < leastRolls) {
+        localStorage.setItem("leastRolls", rollCount)
+      }
       setRollCount(0)
-      // setStopwatch(0); // Reset stopwatch when game is won
 
       const timeTaken = Math.floor(stopwatch / 1000)
       const bestTime = localStorage.getItem("bestTimeTakenToWin")
@@ -114,10 +102,17 @@ function App() {
         {diceElements}
       </div>
       <button className='roll-dice' onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
-      <p>Rolls: {rollCount}</p>
-      {!tenzies && <p>Elapsed Time: {Math.floor(elapsedTime / 1000)} seconds</p>}
-      {tenzies && <p>Total Time: {Math.floor(stopwatch / 1000)} seconds</p>}
-      <p>Best Time: {localStorage.getItem("bestTimeTakenToWin")}</p>
+      <div id='points'>
+        <section>
+        <p className='points-para'>Roll Count: {rollCount}</p>
+        <p>Least Rolls: {localStorage.getItem("leastRolls")}</p>
+        </section>
+        <section>
+          {!tenzies && <p className='points-para'>Elapsed Time: {Math.floor(elapsedTime / 1000)} sec</p>}
+          {tenzies && <p className='points-para'>Total Time: {Math.floor(stopwatch / 1000)} sec</p>}
+          <p>Best Time: {localStorage.getItem("bestTimeTakenToWin")} sec</p>
+        </section>
+      </div>
     </main>
   )
 }
