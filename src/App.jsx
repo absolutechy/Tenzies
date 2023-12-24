@@ -1,17 +1,16 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState} from 'react'
 import Die from './components/Die.jsx'
 import {nanoid} from 'nanoid'
 import Confetti from 'react-confetti'
 import './App.css'
 
-
 function App() {
   const [dice, setDice] = useState(allNewDice())
   const [tenzies, setTenzies] = useState(false)
   const [rollCount, setRollCount] = useState(0)
-  const [startTime, setStartTime] = useState(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [stopwatch, setStopwatch] = useState(0);
+  const [startTime, setStartTime] = useState(null)
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [stopwatch, setStopwatch] = useState(0)
 
   useEffect(() => {
     const allHeld = dice.every(die => die.isHeld)
@@ -36,8 +35,8 @@ function App() {
       setElapsedTime(0); // Reset elapsed time
       setStartTime(null); // Reset start time
     }
-    return () => clearInterval(intervalId);
-  }, [startTime, tenzies]);
+    return () => clearInterval(intervalId)
+  }, [startTime, tenzies])
 
 
   // Working Code Display time after wining the game
@@ -96,6 +95,13 @@ function App() {
       setDice(allNewDice())
       setRollCount(0)
       // setStopwatch(0); // Reset stopwatch when game is won
+
+      const timeTaken = Math.floor(stopwatch / 1000)
+      const bestTime = localStorage.getItem("bestTimeTakenToWin")
+
+      if(bestTime === null || timeTaken < bestTime) {
+        localStorage.setItem("bestTimeTakenToWin", timeTaken)
+      }
     }
   }
 
@@ -111,6 +117,7 @@ function App() {
       <p>Rolls: {rollCount}</p>
       {!tenzies && <p>Elapsed Time: {Math.floor(elapsedTime / 1000)} seconds</p>}
       {tenzies && <p>Total Time: {Math.floor(stopwatch / 1000)} seconds</p>}
+      <p>Best Time: {localStorage.getItem("bestTimeTakenToWin")}</p>
     </main>
   )
 }
