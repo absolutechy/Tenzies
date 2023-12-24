@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Die from './components/Die.jsx'
 import {nanoid} from 'nanoid'
 import Confetti from 'react-confetti'
@@ -17,33 +17,30 @@ function App() {
     const allHeld = dice.every(die => die.isHeld)
     const firstValue = dice[0].value
     const allDiceSame = dice.every(die => die.value === firstValue)
-    if(allHeld && allDiceSame) {
+    if(allHeld && allDiceSame) { 
       setTenzies(true)
+      if (startTime) {
+        setStopwatch(Date.now() - startTime); // Calculate elapsed time when game is won
+      }
     }
-  }, [dice])
-
-  //Try to display time(seconds) continuously like a stop watch
-  useEffect(() => {
-    let interval;
-    if (tenzies && startTime === null) {
-      setStartTime(Date.now()); // Capture the start time when the game begins
-      interval = setInterval(() => {
-        setStopwatch(prevTime => prevTime + 1); // Update stopwatch every second
-      }, 1000);
-    }
-  
-    return () => clearInterval(interval); // Clear interval on component unmount or game win
-  }, [tenzies, startTime]);
+  }, [dice, startTime])
   
   useEffect(() => {
-    if (tenzies && startTime !== null) {
-      const endTime = Date.now();
-      const timeElapsed = endTime - startTime;
-      setElapsedTime(timeElapsed); // Calculate elapsed time when the game is won
+    let intervalId;
+    if (startTime && !tenzies) {
+      intervalId = setInterval(() => {
+        setElapsedTime(Date.now() - startTime); // Update elapsedTime continuously
+      }, 1000); // Update every second
+    } else {
+      clearInterval(intervalId); // Clear interval if game is won or restarted
+      setElapsedTime(0); // Reset elapsed time
+      setStartTime(null); // Reset start time
     }
-  }, [tenzies, startTime]);
+    return () => clearInterval(intervalId);
+  }, [startTime, tenzies]);
 
-  //Working Code Display time after wining the game
+
+  // Working Code Display time after wining the game
   // useEffect(() => {
   //   if (rollCount === 1) {
   //     setStartTime(Date.now()); // Capture the start time
@@ -57,7 +54,6 @@ function App() {
   //     setElapsedTime(timeElapsed); // Update elapsed time
   //   }
   // }, [tenzies, startTime]);
-  
 
   const diceElements = dice.map(die => <Die key={die.id} value={die.value} isHeld={die.isHeld} holdDice={() => holdDice(die.id)}/>)
 
@@ -92,10 +88,14 @@ function App() {
               die : 
               generateNewDie()
       }))
+      if (!startTime) {
+        setStartTime(Date.now()); // Start the stopwatch when the game begins
+      }
     } else {
       setTenzies(false)
       setDice(allNewDice())
       setRollCount(0)
+      // setStopwatch(0); // Reset stopwatch when game is won
     }
   }
 
@@ -108,12 +108,9 @@ function App() {
         {diceElements}
       </div>
       <button className='roll-dice' onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
-      {rollCount}
-      {/* {tenzies && (
-      <p className="elapsed-time">
-        Time taken: {Math.floor(elapsedTime / 1000)} seconds
-      </p>
-      )} */}
+      <p>Rolls: {rollCount}</p>
+      {!tenzies && <p>Elapsed Time: {Math.floor(elapsedTime / 1000)} seconds</p>}
+      {tenzies && <p>Total Time: {Math.floor(stopwatch / 1000)} seconds</p>}
     </main>
   )
 }
